@@ -1,4 +1,5 @@
 from PIL import Image
+import sys
 import argparse
 
 
@@ -14,6 +15,15 @@ def save_image(image, path_to_result):
     image.save(path_to_result)
 
 
+def createParser(*args):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('input', help='input path')
+    parser.add_argument('-w', '--width', help='Width')
+    parser.add_argument('-he', '--height', help='Height')
+    parser.add_argument('-s', '--scale', help='Scale')
+    parser.add_argument('-o', '--output', help='Output file')
+    return parser.parse_args()
+
 # def resize_image(path_to_original, path_to_result):
 #    pass
 
@@ -24,10 +34,8 @@ def save_image(image, path_to_result):
 # output
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-in', required=True, help='input path')
-    parser.add_argument('-w', help='Width')
-    parser.add_argument('-h', help='Height')
-    parser.add_argument('-s', help='Scale')
-    parser.add_argument('-o', help='Output file')
-    p = parser.parse_args()
+    if len(sys.argv) < 2:
+        sys.exit('Необходимо указать как минимум путь к файлу')
+    args = createParser(sys.argv[1:])
+
+
