@@ -42,13 +42,13 @@ def createParser(*args):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        sys.exit('Необходимо указать как минимум путь к файлу!')
+        sys.exit('You should put at least ffile path!')
     args = createParser(sys.argv[1:])
     input_path = args.input
     try:
         opened_image = open_image(input_path)
     except (OSError, FileNotFoundError):
-        sys.exit('Не найден файл с изображением!')
+        sys.exit('Image file not found!')
     original_width, original_height = get_image_size(opened_image)
     arg_width = args.width
     arg_height = args.height
@@ -59,7 +59,7 @@ if __name__ == '__main__':
         if arg_scale:
             arg_scale = float(arg_scale)
             if arg_width or arg_height:
-                sys.exit('Укажите либо масштаб либо высоту и\или ширину!')
+                sys.exit('You can put either scale or width\height!')
             else:
                 width = int(original_width) * arg_scale
                 height = int(original_height) * arg_scale
@@ -68,7 +68,7 @@ if __name__ == '__main__':
             width = int(arg_width)
             height = int(arg_height)
             if get_proportions(width, height) != proportion:
-                print('Пропорции отличны от оригинала!')
+                print('The proportion are different!')
 
         elif arg_width and not arg_height:
             width = int(arg_width)
@@ -79,7 +79,7 @@ if __name__ == '__main__':
             width = height * proportion
 
     except ValueError:
-        sys.exit('Не удалось распознать параметры!')
+        sys.exit('Can\'t recognize the value you passed in')
 
     width = int(width)
     height = int(height)
@@ -95,4 +95,4 @@ if __name__ == '__main__':
 
     save_image(processed_image, output_path)
 
-    print('Файл доступен по пути {}'.format(output_path))
+    print('File created at {}'.format(output_path))
