@@ -82,17 +82,15 @@ if __name__ == '__main__':
     except ValueError:
         sys.exit('Can\'t recognize the value you passed in')
 
-    width = int(width)
-    height = int(height)
-
     if args.output:
         output_path = args.output
     else:
         output_path = get_output_path(
             input_path,
-            '__{0}X{1}'.format(width, height))
+            '__{0}X{1}'.format(int(width), int(height))
+            )
 
-    processed_image = resize_image(opened_image, width, height)
+    processed_image = resize_image(opened_image, int(width), int(height))
 
     save_image(processed_image, output_path)
     print_output_path(output_path)
