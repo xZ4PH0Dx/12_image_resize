@@ -30,7 +30,11 @@ def save_image(image, path_to_result):
     image.save(path_to_result)
 
 
-def createParser(*args):
+def print_output_path(output_path):
+    print('File created at {}'.format(output_path))
+
+
+def create_parser(*args):
     parser = argparse.ArgumentParser()
     parser.add_argument('input', help='input path')
     parser.add_argument('-w', '--width', help='Width')
@@ -43,39 +47,36 @@ def createParser(*args):
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         sys.exit('You should put at least ffile path!')
-    args = createParser(sys.argv[1:])
+    args = create_parser(sys.argv[1:])
     input_path = args.input
     try:
         opened_image = open_image(input_path)
     except (OSError, FileNotFoundError):
         sys.exit('Image file not found!')
     original_width, original_height = get_image_size(opened_image)
-    arg_width = args.width
-    arg_height = args.height
-    arg_scale = args.scale
     proportion = get_proportions(original_width, original_height)
 
     try:
-        if arg_scale:
-            arg_scale = float(arg_scale)
-            if arg_width or arg_height:
+        if args.scale:
+            arg_scale = float(args.scale)
+            if args.width or args.height:
                 sys.exit('You can put either scale or width\height!')
             else:
                 width = int(original_width) * arg_scale
                 height = int(original_height) * arg_scale
 
-        elif arg_width and arg_height:
-            width = int(arg_width)
-            height = int(arg_height)
+        elif args.width and args.height:
+            width = int(args.width)
+            height = int(args.height)
             if get_proportions(width, height) != proportion:
-                print('The proportion are different!')
+                print('Proportions are different!')
 
-        elif arg_width and not arg_height:
-            width = int(arg_width)
+        elif args.width and not args.height:
+            width = int(args.width)
             height = width * proportion
 
-        elif arg_height and not arg_width:
-            height = int(arg_height)
+        elif args.height and not args.width:
+            height = int(args.height)
             width = height * proportion
 
     except ValueError:
@@ -94,5 +95,4 @@ if __name__ == '__main__':
     processed_image = resize_image(opened_image, width, height)
 
     save_image(processed_image, output_path)
-
-    print('File created at {}'.format(output_path))
+    print_output_path(output_path)
