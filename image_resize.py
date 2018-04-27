@@ -4,10 +4,12 @@ import sys
 import argparse
 
 
-def get_output_path(input_path, suffix):
-    basepath = os.path.splitext(input_path)[0]
-    extention = os.path.splitext(input_path)[1]
-    return basepath + suffix + extention
+def get_output_path(args, width, height):
+    if args.output:
+        return args.output
+    basepath = os.path.splitext(args.input)[0]
+    extention = os.path.splitext(args.input)[1]
+    return (basepath + '__{}X{}' + extention).format(width, height)
 
 
 def open_image(path_to_original):
@@ -20,6 +22,32 @@ def get_image_size(image):
 
 def get_proportions(width, height):
     return float(width / height)
+
+
+def get_new_size(args, original_width, original_height):
+    new_size = {'width': None, 'height': None}
+    if args.scale:
+        if args.width or args.height:
+            sys.exit('You should pass either scale or width\\height')
+        width = args.scale * original_width
+        height = args.scale * original_height
+    elif args.width and args.height:
+        width = args.width
+        height = args.height
+        original_proportions = get_proportions(original_width, original_height)
+        if get_proportions(width, height) != original_proportions:
+            print('Proportions are different!')
+    elif args.width and not args.height:
+        coefficient = get_proportions(args.width, original_width)
+        width = original_width * coefficient
+        height = original_height * coefficient
+    elif args.height and not args.width:
+        coefficient = get_proportions(args.height, original_height)
+        height = original_height * coefficient
+        width = original_width * coefficient
+    new_size['width'] = int(width)
+    new_size['height'] = int(height)
+    return new_size
 
 
 def resize_image(image, width, height):
@@ -36,17 +64,17 @@ def print_output_path(output_path):
 
 def create_parser(*args):
     parser = argparse.ArgumentParser()
-    parser.add_argument('input', help='input path')
-    parser.add_argument('-w', '--width', help='Width')
-    parser.add_argument('-he', '--height', help='Height')
-    parser.add_argument('-s', '--scale', help='Scale')
-    parser.add_argument('-o', '--output', help='Output file')
+    parser.add_argument('input', help='input path', type=str)
+    parser.add_argument('-w', '--width', help='Width', type=int)
+    parser.add_argument('-he', '--height', help='Height', type=int)
+    parser.add_argument('-s', '--scale', help='Scale', type=float)
+    parser.add_argument('-o', '--output', help='Output file', type=str)
     return parser.parse_args()
 
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        sys.exit('You should put at least ffile path!')
+        sys.exit('You should put at least file path!')
     args = create_parser(sys.argv[1:])
     input_path = args.input
     try:
@@ -55,42 +83,12 @@ if __name__ == '__main__':
         sys.exit('Image file not found!')
     original_width, original_height = get_image_size(opened_image)
     proportion = get_proportions(original_width, original_height)
-
-    try:
-        if args.scale:
-            arg_scale = float(args.scale)
-            if args.width or args.height:
-                sys.exit('You can put either scale or width\height!')
-            else:
-                width = int(original_width) * arg_scale
-                height = int(original_height) * arg_scale
-
-        elif args.width and args.height:
-            width = int(args.width)
-            height = int(args.height)
-            if get_proportions(width, height) != proportion:
-                print('Proportions are different!')
-
-        elif args.width and not args.height:
-            width = int(args.width)
-            height = width * proportion
-
-        elif args.height and not args.width:
-            height = int(args.height)
-            width = height * proportion
-
-    except ValueError:
-        sys.exit('Can\'t recognize the value you passed in')
-
-    if args.output:
-        output_path = args.output
-    else:
-        output_path = get_output_path(
-            input_path,
-            '__{0}X{1}'.format(int(width), int(height))
-            )
-
-    processed_image = resize_image(opened_image, int(width), int(height))
-
+    new_size = get_new_size(args, original_width, original_height)
+    processed_image = resize_image(
+        opened_image,
+        new_size['width'],
+        new_size['height']
+        )
+    output_path = get_output_path(args, new_size['width'], new_size['height'])
     save_image(processed_image, output_path)
     print_output_path(output_path)
