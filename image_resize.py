@@ -9,7 +9,8 @@ def get_output_path(args, width, height):
         return args.output
     basepath = os.path.splitext(args.input)[0]
     extention = os.path.splitext(args.input)[1]
-    return (basepath + '__{}X{}' + extention).format(width, height)
+    output_path = (basepath + '__{}X{}' + extention).format(width, height)
+    return output_path
 
 
 def open_image(path_to_original):
@@ -21,30 +22,27 @@ def get_image_size(image):
 
 
 def get_proportions(width, height):
-    return float(width / height)
+    return round(float(width / height), 2)
 
 
 def get_new_size(args, original_width, original_height):
     new_size = {'width': None, 'height': None}
     if args.scale:
         if args.width or args.height:
-            sys.exit('You should pass either scale or width\\height')
+            return None
         width = args.scale * original_width
         height = args.scale * original_height
     elif args.width and args.height:
         width = args.width
         height = args.height
-        original_proportions = get_proportions(original_width, original_height)
-        if get_proportions(width, height) != original_proportions:
-            print('Proportions are different!')
-    elif args.width and not args.height:
-        coefficient = get_proportions(args.width, original_width)
-        width = original_width * coefficient
-        height = original_height * coefficient
-    elif args.height and not args.width:
-        coefficient = get_proportions(args.height, original_height)
-        height = original_height * coefficient
-        width = original_width * coefficient
+    elif args.width or args.height:
+        if args.width and not args.height:
+            coefficient = get_proportions(args.width, original_width)
+        elif args.height and not args.width:
+            coefficient = get_proportions(args.height, original_height)
+        new_size['width'] = int(original_width * coefficient)
+        new_size['height'] = int(original_height * coefficient)
+        return new_size
     new_size['width'] = int(width)
     new_size['height'] = int(height)
     return new_size
@@ -82,8 +80,13 @@ if __name__ == '__main__':
     except (OSError, FileNotFoundError):
         sys.exit('Image file not found!')
     original_width, original_height = get_image_size(opened_image)
-    proportion = get_proportions(original_width, original_height)
     new_size = get_new_size(args, original_width, original_height)
+    if not new_size:
+        sys.exit('You should pass either scale or width\\height')
+    original_proportion = get_proportions(original_width, original_height)
+    new_proportion = get_proportions(new_size['width'], new_size['height'])
+    if new_proportion != original_proportion:
+        print('New proportions doesn\'t match original!')
     processed_image = resize_image(
         opened_image,
         new_size['width'],
