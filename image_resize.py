@@ -29,8 +29,8 @@ def get_new_size(args, original_width, original_height):
     if args.scale:
         if args.width or args.height:
             return None
-        new_size = (int(args.scale * original_width),
-                    int(args.scale * original_height))
+        new_size= (int(args.scale * original_width),
+                   int(args.scale * original_height))
     elif args.width and args.height:
         new_size = (args.width, args.height)
     elif args.width or args.height:
@@ -38,10 +38,7 @@ def get_new_size(args, original_width, original_height):
             coefficient = get_proportions(args.width, original_width)
         else:
             coefficient = get_proportions(args.height, original_height)
-        new_size = (
-                int(original_width * coefficient),
-                int(original_height * coefficient)
-                )
+        new_size = (int(original_width * coefficient), int(original_height * coefficient))
     return new_size
 
 
@@ -68,8 +65,6 @@ def create_parser(*args):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        sys.exit('You should put at least file path!')
     args = create_parser(sys.argv[1:])
     input_path = args.input
     try:
