@@ -26,14 +26,8 @@ def validate_args(scale, width, height):
     if scale:
         if width or height or scale < 0:
             return False
-    elif width and height:
-        if width < 0 and height < 0:
-            return False
     elif width or height:
-        if width and not height:
-            if width < 0:
-                return False
-        elif height < 0:
+        if width < 0 or height < 0:
             return False
     return True
 
@@ -86,31 +80,30 @@ if __name__ == '__main__':
     except OSError:
         sys.exit('Image file not found!')
     original_width, original_height = get_image_size(opened_image)
-    if validate_args(args.scale, args.width, args.height):
+    if not validate_args(args.scale, args.width, args.height):
+        sys.exit("Pass positive number and either -s or -w\-he args")
+    new_width, new_height = get_new_size(
+        original_width,
+        original_height,
+        args.scale,
+        args.width,
+        args.height)
 
-        new_width, new_height = get_new_size(
-            original_width,
-            original_height,
-            args.scale,
-            args.width,
-            args.height)
+    original_proportion = get_proportions(original_width, original_height)
+    new_proportion = get_proportions(new_width, new_height)
 
-        original_proportion = get_proportions(original_width, original_height)
-        new_proportion = get_proportions(new_width, new_height)
+    if new_proportion != original_proportion:
+        print("New proportions doesn't match original!")
 
-        if new_proportion != original_proportion:
-            print("New proportions doesn't match original!")
+    processed_image = resize_image(
+        opened_image,
+        new_width,
+        new_height
+        )
 
-        processed_image = resize_image(
-            opened_image,
-            new_width,
-            new_height
-            )
-
-        if not args.output:
-            output_path = get_output_path(args.input, new_width, new_height)
-        else:
-            output_path = args.output
-        save_image(processed_image, output_path)
-        sys.exit(print_output_path(output_path))
-    sys.exit("You should pass positive number and either -s or -w\-he args")
+    if not args.output:
+        output_path = get_output_path(args.input, new_width, new_height)
+    else:
+        output_path = args.output
+    save_image(processed_image, output_path)
+    sys.exit(print_output_path(output_path))
