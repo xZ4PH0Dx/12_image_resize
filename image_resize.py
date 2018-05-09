@@ -4,10 +4,8 @@ import sys
 import argparse
 
 
-def get_output_path(args, width, height):
-    if args.output:
-        return args.output
-    basepath, extension = os.path.splitext(args.input)
+def get_output_path(input, width, height):
+    basepath, extension = os.path.splitext(input)
     output_path = '{}__{}X{}{}'.format(basepath, width, height, extension)
     return output_path
 
@@ -115,7 +113,7 @@ if __name__ == '__main__':
             )
 
         if not args.output:
-            output_path = get_output_path(args, new_width, new_height)
+            output_path = get_output_path(args.input, new_width, new_height)
         else:
             output_path = args.output
         save_image(processed_image, output_path)
