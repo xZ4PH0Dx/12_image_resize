@@ -51,7 +51,7 @@ def get_new_size(original_width, original_height,
             int(args_scale * original_height))
     elif args_width and args_height:
         new_size = (args_width, args_height)
-    elif args_width or args_height :
+    elif args_width or args_height:
         if args_width:
             coefficient = get_proportions(args_width, original_width)
         elif args_height:
@@ -119,4 +119,4 @@ if __name__ == '__main__':
         save_image(processed_image, output_path)
         print_output_path(output_path)
     else:
-        sys.exit("You should pass positive number and either -s or -w\-he args")
+        sys.exit("You should pass positive number and either -s or -w\-he")
