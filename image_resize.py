@@ -24,32 +24,39 @@ def get_proportions(width, height):
     return round(width / height, 2)
 
 
-def validate_args(args_scale, args_width, args_height):
-    if args_scale:
-        if args_width or args_height:
-            return None
-        return 0
-    elif args_width and args_height:
-            return 1
-    elif args_width or args_height:
-        if args_width and not args_height:
-            return 2
-        else:
-            return 3
+def validate_args(scale, width, height):
+    if scale:
+        if width or height:
+            return False
+        elif scale > 0:
+            return True
+        return False
+    elif width and height:
+        if width > 0 and height > 0:
+            return True
+        return False
+    elif width or height:
+        if width and not height:
+            if width > 0:
+                return True
+            return False
+        elif height > 0:
+            return True
+        return False
 
 
-def get_new_size(validation_res, original_width, original_height,
+def get_new_size(original_width, original_height,
                  args_scale, args_width, args_height):
-    if validation_res == 0:
+    if args_scale:
         new_size = (
             int(args_scale * original_width),
             int(args_scale * original_height))
-    elif validation_res == 1:
+    elif args_width and args_height:
         new_size = (args_width, args_height)
-    elif validation_res in (2, 3):
-        if validation_res == 2:
+    elif args_width or args_height :
+        if args_width:
             coefficient = get_proportions(args_width, original_width)
-        elif validation_res == 3:
+        elif args_height:
             coefficient = get_proportions(args_height, original_height)
         new_size = (
             int(original_width * coefficient),
@@ -86,25 +93,32 @@ if __name__ == '__main__':
     except OSError:
         sys.exit('Image file not found!')
     original_width, original_height = get_image_size(opened_image)
-    validated_args_res = validate_args(args.scale, args.width, args.height)
-    new_width, new_height = get_new_size(
-        validated_args_res,
-        original_width,
-        original_height,
-        args.scale,
-        args.width,
-        args.height)
-    if not (new_width, new_height):
-        sys.exit("You should pass either scale or width\height")
-    original_proportion = get_proportions(original_width, original_height)
-    new_proportion = get_proportions(new_width, new_height)
-    if new_proportion != original_proportion:
-        print("New proportions doesn't match original!")
-    processed_image = resize_image(
-        opened_image,
-        new_width,
-        new_height
-        )
-    output_path = get_output_path(args, new_width, new_height)
-    save_image(processed_image, output_path)
-    print_output_path(output_path)
+    if validate_args(args.scale, args.width, args.height):
+
+        new_width, new_height = get_new_size(
+            original_width,
+            original_height,
+            args.scale,
+            args.width,
+            args.height)
+
+        original_proportion = get_proportions(original_width, original_height)
+        new_proportion = get_proportions(new_width, new_height)
+
+        if new_proportion != original_proportion:
+            print("New proportions doesn't match original!")
+
+        processed_image = resize_image(
+            opened_image,
+            new_width,
+            new_height
+            )
+
+        if not args.output:
+            output_path = get_output_path(args, new_width, new_height)
+        else:
+            output_path = args.output
+        save_image(processed_image, output_path)
+        print_output_path(output_path)
+    else:
+        sys.exit("You should pass positive number and either -s or -w\-he args")
