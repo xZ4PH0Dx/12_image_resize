@@ -75,6 +75,7 @@ def create_parser(*args):
 
 if __name__ == '__main__':
     args = create_parser()
+    output_path = args.output
     try:
         opened_image = open_image(args.input)
     except OSError:
@@ -99,7 +100,5 @@ if __name__ == '__main__':
         )
     if not args.output:
         output_path = get_output_path(args.input, new_width, new_height)
-    else:
-        output_path = args.output
     save_image(processed_image, output_path)
     print_output_path(output_path)
