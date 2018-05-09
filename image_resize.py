@@ -46,7 +46,7 @@ def get_new_size(original_width, original_height,
             int(args_scale * original_height))
     elif args_width and args_height:
         new_size = (args_width, args_height)
-    elif args_width or args_height :
+    elif args_width or args_height:
         if args_width:
             coefficient = get_proportions(args_width, original_width)
         elif args_height:
