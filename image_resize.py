@@ -73,6 +73,11 @@ def create_parser(*args):
     return parser.parse_args()
 
 
+def is_proportions_matching(new_proportion, original_proportion):
+    if new_proportion != original_proportion:
+        print("New proportions doesn't match original!")
+
+
 if __name__ == '__main__':
     args = create_parser()
     output_path = args.output
@@ -89,10 +94,9 @@ if __name__ == '__main__':
         args.scale,
         args.width,
         args.height)
-    original_proportion = get_proportions(original_width, original_height)
     new_proportion = get_proportions(new_width, new_height)
-    if new_proportion != original_proportion:
-        print("New proportions doesn't match original!")
+    original_proportion = get_proportions(original_width, original_height)
+    is_proportions_matching(new_proportion, original_proportion)
     processed_image = resize_image(opened_image, new_width, new_height)
     if not args.output:
         output_path = get_output_path(args.input, new_width, new_height)
