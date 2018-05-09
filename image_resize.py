@@ -4,8 +4,8 @@ import sys
 import argparse
 
 
-def get_output_path(input, width, height):
-    basepath, extension = os.path.splitext(input)
+def get_output_path(args_input, width, height):
+    basepath, extension = os.path.splitext(args_input)
     output_path = '{}__{}X{}{}'.format(basepath, width, height, extension)
     return output_path
 
@@ -24,23 +24,18 @@ def get_proportions(width, height):
 
 def validate_args(scale, width, height):
     if scale:
-        if width or height:
+        if width or height or scale < 0:
             return False
-        elif scale > 0:
-            return True
-        return False
     elif width and height:
-        if width > 0 and height > 0:
-            return True
-        return False
+        if width < 0 and height < 0:
+            return False
     elif width or height:
         if width and not height:
-            if width > 0:
-                return True
+            if width < 0:
+                return False
+        elif height < 0:
             return False
-        elif height > 0:
-            return True
-        return False
+    return True
 
 
 def get_new_size(original_width, original_height,
@@ -51,7 +46,7 @@ def get_new_size(original_width, original_height,
             int(args_scale * original_height))
     elif args_width and args_height:
         new_size = (args_width, args_height)
-    elif args_width or args_height:
+    elif args_width or args_height :
         if args_width:
             coefficient = get_proportions(args_width, original_width)
         elif args_height:
@@ -117,6 +112,5 @@ if __name__ == '__main__':
         else:
             output_path = args.output
         save_image(processed_image, output_path)
-        print_output_path(output_path)
-    else:
-        sys.exit("You should pass positive number and either -s or -w\-he")
+        sys.exit(print_output_path(output_path))
+    sys.exit("You should pass positive number and either -s or -w\-he args")
